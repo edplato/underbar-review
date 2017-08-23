@@ -364,6 +364,18 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    // return map that takes collection and iterates over each item
+    return _.map(collection, function(item){
+      // check if function
+      if(typeof functionOrKey === 'function'){
+        // return invocation of that function applied on item with args
+        return functionOrKey.apply(item, args);
+        // else key
+      } else {
+        // return item object with key applied on item with args
+        return item[functionOrKey].apply(item, args);
+      }
+    })
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -371,6 +383,17 @@
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    // return collection that is natively sorted (is this ok?)
+    return collection.sort(function(a,b) {
+      // if iterator is string
+      if(typeof iterator === 'string') {
+        // return ascending sort of collection[a][key] - collection[b][key]
+        return a[iterator] - b[iterator];
+      } else {
+        // return ascending sort of iterator invoked on collection[a] - collection[b]
+        return iterator(a) - iterator(b);
+      }
+    });
   };
 
   // Zip together two or more arrays with elements of the same index
@@ -379,13 +402,32 @@
   // Example:
   // _.zip(['a','b','c','d'], [1,2,3]) returns [['a',1], ['b',2], ['c',3], ['d',undefined]]
   _.zip = function() {
+    // empty array to hold combined elements
+    var zipped = [];
+    // loop through arguments
+    for(var i = 0; i < arguments.length; i++){
+      // at empty array index, pluck a map from arguments using that current index as a key
+      zipped[i] = _.pluck(arguments, i);
+    }
+    return zipped;
   };
+
 
   // Takes a multidimensional array and converts it to a one-dimensional array.
   // The new array should contain all elements of the multidimensional array.
   //
   // Hint: Use Array.isArray to check if something is an array
   _.flatten = function(nestedArray, result) {
+    // reduce nestedArray with an init accumulator of empty array
+    return _.reduce(nestedArray, function(flatArray, current){
+      // checks if current value in flatArray is an array and thus goes deeper
+      if(Array.isArray(current)){
+        // returns accumulator with a recursive call on current
+        return flatArray.concat(_.flatten(current));
+      }
+      // return accumulator concat with non-array current value
+      return flatArray.concat(current);
+    }, []);
   };
 
   // Takes an arbitrary number of arrays and produces an array that contains
